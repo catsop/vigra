@@ -1698,9 +1698,25 @@ inline bool greaterEqualAtTolerance(T1 l, T2 r)
 
 //@}
 
+namespace detail {
+
+template <typename T>
+inline T clipLower(const T t, std::true_type /* is_signed */) {
+
+    return t < static_cast<T>(0.0) ? static_cast<T>(0.0) : t;
+}
+
+template <typename T>
+inline T clipLower(const T t, std::false_type /* is_signed */) {
+
+    return t;
+}
+
+} // namespace detail
+
 #define VIGRA_MATH_FUNC_HELPER(TYPE) \
     inline TYPE clipLower(const TYPE t){ \
-        return t < static_cast<TYPE>(0.0) ? static_cast<TYPE>(0.0) : t; \
+        return detail::clipLower(t, std::is_signed<TYPE>::type()); \
     } \
     inline TYPE clipLower(const TYPE t,const TYPE valLow){ \
         return t < static_cast<TYPE>(valLow) ? static_cast<TYPE>(valLow) : t; \
